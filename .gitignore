@@ -1,0 +1,3 @@
+build/
+.vscode/
+systolic_array/__pycache__
