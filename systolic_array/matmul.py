@@ -228,6 +228,7 @@ def matmulTilingWithThreeLoop3(X, Y, QU, KU, CU, QTS, KTS, CTS):
     return Z
 
 
+# 主要参考 https://zhuanlan.zhihu.com/p/6965244634 , 最后的算法比较晦涩, 暂时不想看
 def matmulWithPE(X, Y, QU, KU, CU, QTS, KTS, CTS):
     """"
     X, Y 是输入矩阵
@@ -277,14 +278,15 @@ def matmulWithPE(X, Y, QU, KU, CU, QTS, KTS, CTS):
                     k_start = kt * KU
                     q_end = min(q_start + QU, Q)
                     k_end = min(k_start + KU, K)
-                    # for PE
-                    reduce_group_id = 
+                    # 参考Q X K的切面图
+                    reduce_group_id = qts * KTS + kts
+                    # 遍历reduce的每一组
                     for cts in range(CTS):
+                        pe_id = reduce_group_id * CTS + cts
+                        # 每个PE完成CTT次matmul
                         for ctt in range(CTT):
-                            ct = ctt * CTS + cts
-                            if qt < QT and ct < CT and kt < KT:
-                                c_start = ct * CU
-                                c_end = min(c_start + CU, C)
-                                Z[q_start:q_end, k_start:k_end] += matmulWithThreeLoop(X[q_start:q_end, c_start:c_end], Y[c_start:c_end, k_start:k_end])
+                            if qt < QT and kt < KT and ct < CT:
+                                # 
+                                ct = ctt * CTS + cts
     return Z
 
