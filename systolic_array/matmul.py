@@ -228,18 +228,23 @@ def matmulTilingWithThreeLoop3(X, Y, QU, KU, CU, QTS, KTS, CTS):
     return Z
 
 
-# 主要参考 https://zhuanlan.zhihu.com/p/6965244634 , 最后的算法比较晦涩, 暂时不想看
+# 主要参考 https://zhuanlan.zhihu.com/p/6965244634 , 实现的原始版systloic array, weight会变
 def matmulWithPE(X, Y, QU, KU, CU, QTS, KTS, CTS):
     """"
     X, Y 是输入矩阵
     QU, KU, CU 是基本块大小
-    QTS : 有多少组PE
-    KTS : 有多少组PE
-    CTS : 每几个PE通过Router进行reduce
-    QTT : 计算QTT次才能覆盖完整的Q
+
+    循环qt,kt,ct进行循环分块, 分块大小分别为QTS,KTS,CTS。
+    QTS表示并行计算qt循环的PE的个数
+    KTS表示并行计算kt循环的PE的个数
+    CTS表示并行计算ct循环的PE的个数
+
+    QTS个PE要算QTT次才能覆盖完整的Q
+    CTS个PE要算CTT次才能覆盖完整的C
+    KTS个PE要算KTT次才能覆盖完整的K
 
     On-chip Buffer: 指代两个input tensor 和一个output tensor
-    PE Buffer : 每个PE保护input buffer + weight buffer + output buffer , 使用X_pe, Y_pe, Z_pe表示
+    PE Buffer : 每个PE包含input buffer + weight buffer + output buffer , 使用X_pe, Y_pe, Z_pe表示
 
     """
 
