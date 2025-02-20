@@ -229,6 +229,7 @@ def matmulTilingWithThreeLoop3(X, Y, QU, KU, CU, QTS, KTS, CTS):
 
 
 # 主要参考 https://zhuanlan.zhihu.com/p/6965244634 , 实现的原始版systloic array, weight会变
+# 这段我看了挺久，如果是硬件的实现，每个PE内部都需要Buffer，不是很合理
 def matmulWithPE(X, Y, QU, KU, CU, QTS, KTS, CTS):
     """"
     X, Y 是输入矩阵
@@ -270,28 +271,43 @@ def matmulWithPE(X, Y, QU, KU, CU, QTS, KTS, CTS):
     Y_pe = np.zeros((PE_NUM, C, K))
     Z_pe = np.zeros((PE_NUM, Q, K))
 
-
-
     for qtt in range(QTT):
         for ktt in range(KTT):
             for qts in range(QTS):
                 for kts in range(KTS):
-                    # 计算当时是第几个tile
                     qt = qtt * QTS + qts
-                    kt = ktt * KTS + kts
                     q_start = qt * QU
-                    k_start = kt * KU
                     q_end = min(q_start + QU, Q)
+                    kt = ktt * KTS + kts
+                    k_start = kt * KU
                     k_end = min(k_start + KU, K)
-                    # 参考Q X K的切面图
-                    reduce_group_id = qts * KTS + kts
-                    # 遍历reduce的每一组
+                    reduce_group_id = qtt * KTS + kts
+                    # 按组遍历PE
                     for cts in range(CTS):
                         pe_id = reduce_group_id * CTS + cts
-                        # 每个PE完成CTT次matmul
-                        for ctt in range(CTT):
+                        for ctt in range (CTT):
+                            ct = ctt * CTS + cts
                             if qt < QT and kt < KT and ct < CT:
-                                # 
-                                ct = ctt * CTS + cts
+                                c_start = ct * CU
+                                c_end = min(c_start + CU, C)
+                                X_pe[pe_id, 0:q_end-q_start, 0:c_end-c_start] = X[q_start:q_end, c_start:c_end]
+                                Y_pe[pe_id, 0:c_end-c_start, 0:k_end-k_start] = Y[c_start:c_end, k_start:k_end]
+
+                                if ctt == 0:
+                                    Z_pe[pe_id, 0:q_end-q_start, 0:k_end-k_start] = matmulWithThreeLoop(X_pe[pe_id, 0:q_end-q_start, 0:c_end-c_start], Y_pe[pe_id, 0:c_end-c_start, 0:k_end-k_start])
+                                else:
+                                    Z_pe[pe_id, 0:q_end-q_start, 0:k_end-k_start] += matmulWithThreeLoop(X_pe[pe_id, 0:q_end-q_start, 0:c_end-c_start], Y_pe[pe_id, 0:c_end-c_start, 0:k_end-k_start])
+
+                        #在分组内部，最终结果需要进行累加
+                        if reduce_group_id * CTS != pe_id:
+                            Z_pe[reduce_group_id * CTS, 0:q_end-q_start, 0:k_end-k_start] += Z_pe[pe_id, 0:q_end-q_start, 0:k_end-k_start]
+                    #最后将结果写到Z中，Z对应于DRAM buffer
+                    Z[q_start:q_end, k_start:k_end] = Z_pe[reduce_group_id * CTS, 0:q_end-q_start, 0:k_end-k_start]
     return Z
 
+
+# 基于时间局部性优化和多播优化减少PE访问外部存储器的次数，提高性能
+
+# 基于weight stationary的原始设计
+def basicMatmulTiling_qkc(X, Y, QU, KU, CU, QTS, KTS, CTS):
+    
