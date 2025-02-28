@@ -1,3 +1,4 @@
 build/
 .vscode/
 systolic_array/__pycache__
+**/__pycache__/

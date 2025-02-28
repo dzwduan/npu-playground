@@ -228,25 +228,17 @@ def matmulTilingWithThreeLoop3(X, Y, QU, KU, CU, QTS, KTS, CTS):
     return Z
 
 
-# 主要参考 https://zhuanlan.zhihu.com/p/6965244634 , 实现的原始版systloic array, weight会变
-# 这段我看了挺久，如果是硬件的实现，每个PE内部都需要Buffer，不是很合理
+# 主要参考 https://zhuanlan.zhihu.com/p/6965244634 
+# 每个PE中Input Buffer和Weight Buffer中的数据“流经”脉动阵列（Systolic Array）计算，
+# 得到输入Tensors的Slices的Basic Matmul的输出结果,
+# 输出结果通过Router与其他PE的Output Buffer中的数据相加后写入该PE的Ouput Buffer
 def matmulWithPE(X, Y, QU, KU, CU, QTS, KTS, CTS):
     """"
     X, Y 是输入矩阵
     QU, KU, CU 是基本块大小
-
-    循环qt,kt,ct进行循环分块, 分块大小分别为QTS,KTS,CTS。
-    QTS表示并行计算qt循环的PE的个数
-    KTS表示并行计算kt循环的PE的个数
-    CTS表示并行计算ct循环的PE的个数
-
-    QTS个PE要算QTT次才能覆盖完整的Q
-    CTS个PE要算CTT次才能覆盖完整的C
-    KTS个PE要算KTT次才能覆盖完整的K
-
-    On-chip Buffer: 指代两个input tensor 和一个output tensor
-    PE Buffer : 每个PE包含input buffer + weight buffer + output buffer , 使用X_pe, Y_pe, Z_pe表示
-
+    每个PE能够计算 QU x KU x CU 的矩阵乘法
+    QTS : 用于并行计算QE循环的PE数量
+    QT循环 : 对循环Q进行分块, 每块的大小是QU, 那么一共分QT块, 用QTS个PE并行处理, 那么只需要QT/QTS = QTT 次就能处理完整个Q
     """
 
     assert len(X.shape) == len(Y.shape) and len(X.shape) == 2
@@ -265,25 +257,31 @@ def matmulWithPE(X, Y, QU, KU, CU, QTS, KTS, CTS):
     CTT = (CT + CTS - 1) // CTS
     KTT = (KT + KTS - 1) // KTS
 
-    # 新增PE！
+    # PE 内部的 input weight output buffer
     PE_NUM = 16
     X_pe = np.zeros((PE_NUM, Q, C))
     Y_pe = np.zeros((PE_NUM, C, K))
     Z_pe = np.zeros((PE_NUM, Q, K))
 
+    # 该loop基于PE设计
     for qtt in range(QTT):
         for ktt in range(KTT):
             for qts in range(QTS):
                 for kts in range(KTS):
+                    # 当前是Q方向的第几个PE
                     qt = qtt * QTS + qts
+                    # 每个PE可以在Q方向运行QU长度
                     q_start = qt * QU
+                    # 保证不超过Q的长度
                     q_end = min(q_start + QU, Q)
                     kt = ktt * KTS + kts
                     k_start = kt * KU
                     k_end = min(k_start + KU, K)
+                    # QK矩阵 QXK是输出矩阵的大小, 用于获取输出矩阵的位置
                     reduce_group_id = qtt * KTS + kts
-                    # 按组遍历PE
+                    # C方向遍历循环，CTS代表C方向可以同时并行处理的数量
                     for cts in range(CTS):
+                        # 
                         pe_id = reduce_group_id * CTS + cts
                         for ctt in range (CTT):
                             ct = ctt * CTS + cts
@@ -310,4 +308,5 @@ def matmulWithPE(X, Y, QU, KU, CU, QTS, KTS, CTS):
 
 # 基于weight stationary的原始设计
 def basicMatmulTiling_qkc(X, Y, QU, KU, CU, QTS, KTS, CTS):
-    
+    assert len(X.shape) ==  2 and len(Y.shape) == 2
+    assert X.shape[1] == Y.shape[0]
