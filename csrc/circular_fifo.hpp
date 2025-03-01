@@ -1,24 +1,24 @@
 #include <memory>
-#include "dff.hpp"
+#include "dff_base.hpp"
 
-// implement cycle accurate circular fifo by using DFF
+// implement cycle accurate circular fifo by using DffBase
 // like fifo use rptr wptr, ren, wen, empty, full
 template<typename T>
 class circular_fifo {
 protected:
-    std::unique_ptr<DFF<T>[]> data;
+    std::unique_ptr<DffBase<T>[]> data;
     int size;
-    DFF<int> count;
-    DFF<int> rptr;
-    DFF<int> wptr;
-    DFF<bool> ren;
-    DFF<bool> wen;
-    DFF<bool> empty;
-    DFF<bool> full;
+    DffBase<int> count;
+    DffBase<int> rptr;
+    DffBase<int> wptr;
+    DffBase<bool> ren;
+    DffBase<bool> wen;
+    DffBase<bool> empty;
+    DffBase<bool> full;
 
 public:
     circular_fifo(int size) : size(size), count(0) {
-        data = std::make_unique<DFF<T>[]>(size);
+        data = std::make_unique<DffBase<T>[]>(size);
         rptr <= 0;
         wptr <= 0;
         ren <= false;

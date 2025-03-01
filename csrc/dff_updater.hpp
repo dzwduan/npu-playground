@@ -1,11 +1,11 @@
 #pragma once
 #include <vector>
-#include "dff.hpp"
+#include "dff_base.hpp"
 
 template<typename T>
 class DFFUpdater {
 private:
-    std::vector<DFF<T>*> dffs;
+    std::vector<DffBase<T>*> dffs;
     bool global_rst_n;
     bool global_en;
 
@@ -13,7 +13,7 @@ public:
     DFFUpdater() : global_rst_n(true), global_en(true) {}
 
     // 注册DFF
-    void register_dff(DFF<T>* dff) {
+    void register_dff(DffBase<T>* dff) {
         dffs.push_back(dff);
     }
 
