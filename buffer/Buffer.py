@@ -1,7 +1,7 @@
 import numpy as np
 
 class Buffer:
-    def __init__(self, N, M, K):
+    def __init__(self, M, N, K):
         """
         Initialize the buffer with N banks, M entries per bank, and K bytes per entry.
         - N: Number of banks
@@ -12,7 +12,7 @@ class Buffer:
         self.M = M  # Number of entries per bank
         self.K = K  # Size of each entry in bytes
 
-        self.buffer = np.zeros((M, N, K), dtype = np.uint8)
+        self.buffer = np.zeros(M*N*K, dtype=np.uint8).reshape(M, N, K)
 
     def __str__(self):
         """
@@ -61,13 +61,8 @@ class Buffer:
         for i in range(self.N):
             entry_idx = bank_addr_[i] // self.N
             bank_idx = bank_addr_[i] % self.N
-            print(data[i])
-            self.buffer[entry_idx, bank_idx] = self.data_mask(data[i], byte_mask[i])
+            original_data = self.buffer[entry_idx, bank_idx]
+            modified = (original_data & ~byte_mask[i] | data[i] & byte_mask[i])
+            print("original_data", original_data , "|| data", data[i], "|| byte_mask", byte_mask[i], "|| modified", modified)
 
-    def data_mask(data, mask):
-        """
-        Apply a byte mask to the data.
-        data: The original data.
-        mask: The byte mask.
-        """
-        return (data & ~mask) | mask
+            self.buffer[entry_idx, bank_idx, :] = modified

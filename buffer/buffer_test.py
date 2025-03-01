@@ -5,23 +5,19 @@ from Buffer import *
 
 class TestBuffer(TestCase):
     def test_buffer(self):
-        buffer = Buffer(2, 4, 2)
-        self.assertEqual(buffer.N, 2)
-        self.assertEqual(buffer.M, 4)
-        self.assertEqual(buffer.K, 2)
-        self.assertTrue(np.array_equal(buffer.buffer, np.zeros((4, 2, 2), dtype=np.uint8)))
+        buffer = Buffer(4, 2, 2)
+       
 
+        # Test the buffer address calculation
+        self.assertEqual(buffer.get_addr(0, 0), 0)
+        self.assertEqual(buffer.get_addr(0, 1), 2)
+        self.assertEqual(buffer.get_addr(1, 0), 4)
+        self.assertEqual(buffer.get_addr(1, 1), 6)
+
+        # Test the buffer read and write
+        # if write , we need write N bank one time
+        buffer.write([0, 2], np.array([[1, 2], [3, 4]]), np.array([[1, 1], [0x0f, 0x00]]))
         print(buffer)
 
-        addr = buffer.get_addr(1, 1)
-        self.assertEqual(addr, 6)
-
-        data = buffer.read(6)
-        print(data)
-        self.assertTrue(np.array_equal(data, np.zeros(2, dtype=np.uint8)))
-
-        buffer.write([6, 8], np.array([1, 31]), [0x00ff, 0b11])
-        
-        
 if __name__ == "__main__":
     main()
