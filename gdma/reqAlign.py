@@ -18,9 +18,7 @@ class RdGmReq:
         self.reqId = reqId
         self.startAddr = startAddr
         self.length = length
-
-    def end_addr(self) -> int:
-        return self.startAddr + self.length
+        self.end_addr = self.startAddr + self.length
     
     def to_dict(self) -> dict:
         return {k: v for k, v in self.__dict__.items()}
@@ -35,9 +33,43 @@ class RdGmReq:
             length = min(random_len, max_len - i * random_len)
             yield RdGmReq(i, start, length)
 
+# 理论上，我只需要知道startAddr，Length, 就能的后所有的结果，因此需要对rdGmReq增加一个解析器
+class AlignedRdGmReq:
+    def __init__(self, req : list[RdGmReq], align_len: int):
+        self.req = req
+        self.align_len = align_len
+        self.startAddr = np.zeros(len(req), dtype=int)
+        self.startOffset = np.zeros(len(req), dtype=int)
+        self.endOffset = np.zeros(len(req), dtype=int)
+
+    def __str__(self) -> str:
+        print("\n")
+        str = "reqId\tstartAddr\tstartOffset\tendOffset\n"
+        for i, req in enumerate(self.req):
+            str += f"{req.reqId}\t{self.startAddr[i]}\t\t{self.startOffset[i]}\t\t{self.endOffset[i]}\n"
+        return str
+
+    def align(self):
+        for i, req in enumerate(self.req):
+            self.startAddr[i] = req.startAddr // self.align_len * self.align_len
+            self.startOffset[i] = req.startAddr -  self.startAddr[i]
+            self.endOffset[i] = align_ceil(req.startAddr, align_len) - 1
+
+
 
 if __name__ == "__main__":
     # Generate a list of random requests
     reqs = list(RdGmReq.random_generate(4, 4, 49))
     for req in reqs:
         print(req)
+
+    # Align the requests to a given length
+    align_len = 16
+    aligned_reqs = AlignedRdGmReq(reqs, align_len)
+    print(aligned_reqs)
+    aligned_reqs.align()
+    print(aligned_reqs)
+
+
+#TODO: 1. 增加解析器，重构alignGdmaReq
+#TODO: 2. 需要和ub部分串起来

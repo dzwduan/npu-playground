@@ -1,5 +1,7 @@
 # NPU Playground
 
+记录一下学习过程中的demo, 不一定能跑, 最终目标可能是一个周期精确的npu simulator, 测试基本靠AI随缘生成
+
 ## implement fifo lists:
 
 1. sync fifo
