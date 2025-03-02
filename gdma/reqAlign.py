@@ -33,27 +33,39 @@ class RdGmReq:
             length = min(random_len, max_len - i * random_len)
             yield RdGmReq(i, start, length)
 
-# 理论上，我只需要知道startAddr，Length, 就能的后所有的结果，因此需要对rdGmReq增加一个解析器
+# 理论上，我只需要知道start，Length, 就能的后所有的结果，因此需要对rdGmReq增加一个解析器
 class AlignedRdGmReq:
     def __init__(self, req : list[RdGmReq], align_len: int):
         self.req = req
         self.align_len = align_len
-        self.startAddr = np.zeros(len(req), dtype=int)
-        self.startOffset = np.zeros(len(req), dtype=int)
-        self.endOffset = np.zeros(len(req), dtype=int)
+        self.start, self.length = self.transform(req)
+        self.start_addr = np.zeros((len(req),), dtype=int)
+        self.start_offset = np.zeros((len(req),), dtype=int)
+        self.end_offset = np.zeros((len(req),), dtype=int)
+
+    # 解析器, 获取startAddr + total Length
+    def transform(self, req: list[RdGmReq]) -> tuple:
+        start_addr = req[0].startAddr
+        length = sum([r.length for r in req])
+        return start_addr, length
 
     def __str__(self) -> str:
         print("\n")
         str = "reqId\tstartAddr\tstartOffset\tendOffset\n"
         for i, req in enumerate(self.req):
-            str += f"{req.reqId}\t{self.startAddr[i]}\t\t{self.startOffset[i]}\t\t{self.endOffset[i]}\n"
+            str += f"{req.reqId}\t{self.start_addr[i]}\t\t{self.start_offset[i]}\t\t{self.end_offset[i]}\n"
         return str
 
-    def align(self):
-        for i, req in enumerate(self.req):
-            self.startAddr[i] = req.startAddr // self.align_len * self.align_len
-            self.startOffset[i] = req.startAddr -  self.startAddr[i]
-            self.endOffset[i] = align_ceil(req.startAddr, align_len) - 1
+    # generaae align req from start_addr and length
+    def alignReq(self):
+        tmp_end = align_ceil(self.start, self.align_len)
+        for i in range(len(self.req)):
+            aligned_start_addr = align_floor(self.start + i*align_len, self.align_len)
+            aligned_end_addr = align_ceil(self.start + i*align_len, self.align_len) if i!=0 else tmp_end
+            self.start_addr[i] = aligned_start_addr
+            self.start_offset[i] = 0 if i!=0 else self.start - aligned_start_addr
+            self.end_offset[i] = min(aligned_end_addr -  self.start_addr[i], self.start + self.length- i*align_len) - 1
+
 
 
 
@@ -67,9 +79,9 @@ if __name__ == "__main__":
     align_len = 16
     aligned_reqs = AlignedRdGmReq(reqs, align_len)
     print(aligned_reqs)
-    aligned_reqs.align()
+    aligned_reqs.alignReq()
     print(aligned_reqs)
 
 
-#TODO: 1. 增加解析器，重构alignGdmaReq
+#TODO: 1. 增加解析器，重构alignGdmaReq 
 #TODO: 2. 需要和ub部分串起来
