@@ -66,9 +66,7 @@ class AlignedRdGmReq:
             self.start_offset[i] = 0 if i!=0 else self.start - aligned_start_addr
             self.end_offset[i] = min(aligned_end_addr -  self.start_addr[i], self.start + self.length- i*align_len) - 1
 
-
-
-
+    
 if __name__ == "__main__":
     # Generate a list of random requests
     reqs = list(RdGmReq.random_generate(4, 4, 49))
@@ -83,5 +81,5 @@ if __name__ == "__main__":
     print(aligned_reqs)
 
 
-#TODO: 1. 增加解析器，重构alignGdmaReq 
+#TODO: 1. 增加解析器，重构alignGdmaReq . finish
 #TODO: 2. 需要和ub部分串起来
