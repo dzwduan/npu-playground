@@ -19,13 +19,13 @@ class RdGmReq:
         self.startAddr = startAddr
         self.length = length
         self.end_addr = self.startAddr + self.length
-    
+
     def to_dict(self) -> dict:
         return {k: v for k, v in self.__dict__.items()}
 
     def __str__(self) -> str:
         return f"ReqId: {self.reqId:3}, StartAddr: {self.startAddr:3}, Length: {self.length}"
-    
+
     def random_generate(start_addr, id_num, max_len):
         for i in range(id_num):
             random_len = 14
@@ -66,7 +66,7 @@ class AlignedRdGmReq:
             self.start_offset[i] = 0 if i!=0 else self.start - aligned_start_addr
             self.end_offset[i] = min(aligned_end_addr -  self.start_addr[i], self.start + self.length- i*align_len) - 1
 
-    
+
 if __name__ == "__main__":
     # Generate a list of random requests
     reqs = list(RdGmReq.random_generate(4, 4, 49))

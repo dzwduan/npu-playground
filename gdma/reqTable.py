@@ -11,11 +11,10 @@ class reqTable:
         self.endOffset = endOffset
         self.reqId = reqId
         self.table = np.zeros((len(reqId), 2), dtype=int)
-        
+
     def generate_table(self):
         for i in range(len(self.reqId)):
             self.table[i][0] = self.startOffset[i]
             self.table[i][1] = self.endOffset[i]
         return self.table
-        
-    
+

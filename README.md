@@ -4,6 +4,8 @@
 
 2025.3.2: 本打算手写一个简单的cycle accurate建模框架，搜了一下有一大把，还是先做功能性的建模，[找到的py hdl](https://www.reddit.com/r/FPGA/comments/w7ut22/choice_of_python_hdl_library/) , 从解决问题的角度而言, 我只需要挑选最快实现的方式，而非性能最好的。
 
+2025.3.5: 关于im2col对于带宽的影响 https://zhuanlan.zhihu.com/p/26647725429
+
 
 ## implement fifo lists:
 
