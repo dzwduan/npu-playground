@@ -1,4 +1,3 @@
-import pandas as pd
 import numpy as np
 import math
 from math import *
@@ -35,9 +34,8 @@ class RdGmReq:
 
 # 理论上，我只需要知道start，Length, 就能的后所有的结果，因此需要对rdGmReq增加一个解析器
 class AlignedRdGmReq:
-    def __init__(self, req : list[RdGmReq], align_len: int):
+    def __init__(self, req : list[RdGmReq]):
         self.req = req
-        self.align_len = align_len
         self.start, self.length = self.transform(req)
         self.start_addr = np.zeros((len(req),), dtype=int)
         self.start_offset = np.zeros((len(req),), dtype=int)
@@ -57,14 +55,15 @@ class AlignedRdGmReq:
         return str
 
     # generaae align req from start_addr and length
-    def alignReq(self):
-        tmp_end = align_ceil(self.start, self.align_len)
+    def alignReq(self, start:int, length, align_len):
+        tmp_end = align_ceil(start, align_len)
         for i in range(len(self.req)):
-            aligned_start_addr = align_floor(self.start + i*align_len, self.align_len)
-            aligned_end_addr = align_ceil(self.start + i*align_len, self.align_len) if i!=0 else tmp_end
+            aligned_start_addr = align_floor(start + i*align_len, align_len)
+            aligned_end_addr = align_ceil(start + i*align_len, align_len) if i!=0 else tmp_end
             self.start_addr[i] = aligned_start_addr
-            self.start_offset[i] = 0 if i!=0 else self.start - aligned_start_addr
-            self.end_offset[i] = min(aligned_end_addr -  self.start_addr[i], self.start + self.length- i*align_len) - 1
+            self.start_offset[i] = 0 if i!=0 else start - aligned_start_addr
+            self.end_offset[i] = min(aligned_end_addr -  self.start_addr[i], self.start + length- i*align_len) - 1
+        return self.start_addr, self.start_offset, self.end_offset
 
 
 if __name__ == "__main__":
@@ -76,8 +75,7 @@ if __name__ == "__main__":
     # Align the requests to a given length
     align_len = 16
     aligned_reqs = AlignedRdGmReq(reqs, align_len)
-    print(aligned_reqs)
-    aligned_reqs.alignReq()
+    aligned_reqs.alignReq(4, 49, 16)
     print(aligned_reqs)
 
 
