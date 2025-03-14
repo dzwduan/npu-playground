@@ -8,3 +8,10 @@
 1. model 存放模型保存的数据
 1. sripts 存放导onnx的脚本
 1. src 依托都放里面
+
+
+## 工具类
+1. vscode onnx_viewer
+1. miniconda
+1. [.clangd配置](https://tonixwd.github.io/2024/10/08/%E5%AE%9E%E7%94%A8%E5%B7%A5%E5%85%B7%E7%AC%94%E8%AE%B0/clangd%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E7%AE%80%E4%BB%8B/)
+1. [ONNX入门](https://zhuanlan.zhihu.com/p/346511883)

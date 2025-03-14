@@ -1,0 +1,47 @@
+# If:                               # 设置配置文件的使用条件
+#   PathMatch: /home/dzw/onnxim/*.h              # 所有头文件都使用
+# #   PathExclude: include/llvm-c/.*  # 排除该路径下的所有文件
+
+CompileFlags:            # 编译标志部分
+  Add:
+    - "-Wall"           # 启用所有警告
+    - "-Wextra"         # 启用额外警告
+    - "-std=c++20"      # 使用C++20标准
+    - "-Ionnx/include -Ionnxim/onnx"       # 包含头文件, 相对路径
+    # - "-isystemF:/onnx/onnx" # 包含头文件, 绝对路径
+  
+  # Remove: ["-Werror"]   # 移除将所有警告作为错误的选项
+Compiler: clang++     # 指定编译器
+
+Index:
+  Background: true            # 在后台索引项目代码
+  BuildSystem: "CMake"        # 指定构建系统类型
+  IndexFile: ".clangd-index"  # 索引文件路径
+  ImplicitDynamic: true       # 动态索引所有头文件
+  ResourceDir: "/home/dzw/onnxim"  # 资源目录路径
+
+Diagnostics:             # 诊断设置部分
+  ClangTidy:             # Clang-Tidy 配置
+    Add: ["cppcoreguidelines-*", "modernize-*", "performance-*"] 
+    # 添加Clang-Tidy检查项, 其含义参见https://clang.llvm.org/extra/clang-tidy/
+    Remove: ["clang-analyzer-*"] # 移除Clang分析器检查项
+  ClangTidyChecks: true  # 启用 Clang-Tidy 检查
+  Options:               # Clang-Tidy 的选项设置
+    UseChecks: ["*"]     # 使用所有检查项
+    HeaderFilterRegex: ".*" # 正则表达式，用于过滤头文件
+    WarningsAsErrors: "cppcoreguidelines-*" # 将特定警告视为错误
+
+InlayHints:              # 代码提示设置部分
+  Enabled: true          # 启用代码提示
+  ParameterNames: true   # 显示参数名称提示
+  DeducedTypes: true     # 显示推断类型提示
+  Designators: true      # 显示设计器提示
+
+Completion:              # 代码补全设置部分
+  AllScopes: true        # 启用所有作用域的代码补全
+  Brackets: "[]"         # 补全时使用的括号类型
+
+SemanticTokens:          # 语义标记设置部分
+  Enabled: true          # 启用语义标记
+  DisabledKinds: ["Macro"] # 禁用宏语义标记
+  DisabledModifiers: ["Static"] # 禁用静态修饰符语义标记

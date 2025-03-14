@@ -5,13 +5,18 @@ import json
 import os
 
 # set save path
-save_path = Path(__file__).parent / 'model'
+save_path = Path(__file__).parent / '../model'
 if not os.path.exists(save_path):
     os.makedirs(save_path, exist_ok=True)
 
+TYPE = torch.int8
+M0 = 3
+K0 = 4
+N0 = 5
+
 # generate random input
-in1 = torch.randn(3, 4)
-in2 = torch.randn(4, 5)
+in1 = torch.randn(M0, K0)
+in2 = torch.randn(K0, N0)
 
 # dump matmul.onnx
 class Matmul(torch.nn.Module):
@@ -21,27 +26,18 @@ class Matmul(torch.nn.Module):
     def forward(self, x, y):
         return torch.matmul(x, y)
 
-
 model = Matmul()
 onnx_path = save_path / 'matmul.onnx'
-input1 = torch.zeros((in1.shape[0], in1.shape[1]))
-input2 = torch.zeros((in2.shape[0], in2.shape[1]))
-torch.onnx.export(model, (input1, input2), onnx_path, export_params=True, input_names=['input1', 'input2'], output_names=['output'])
+torch.onnx.export(model, (in1, in2), onnx_path, export_params=True, input_names=['input1', 'input2'], output_names=['output'])
 # dump config
 config = {
     "models": [
         {
-            "name": "matmul",
-            "path": str(onnx_path),
-            "input_shapes": [
-                [3, 4],
-                [4, 5]
-            ],
-            "output_shapes": [
-                [3, 5]
-            ]
+            "name": f"matmul_{M0}x{K0} @ {K0}x{N0}",
+            "path": str(onnx_path)
         }
     ]
 }
+
 with open(save_path / 'config.json', 'w') as f:
     json.dump(config, f)
