@@ -1,0 +1,1 @@
+{"models": [{"name": "matmul", "path": "/home/dzw/npu-playground/onnxim/scripts/model/matmul.onnx", "input_shapes": [[3, 4], [4, 5]], "output_shapes": [[3, 5]]}]}

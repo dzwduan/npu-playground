@@ -1,6 +1,7 @@
 import numpy as np
 
 class Buffer:
+    #TODO: change to pingpong buffer
     def __init__(self, M, N, K):
         """
         Initialize the buffer with N banks, M entries per bank, and K bytes per entry.

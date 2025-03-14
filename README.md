@@ -7,6 +7,10 @@
 2025.3.5: 关于im2col对于带宽的影响 https://zhuanlan.zhihu.com/p/26647725429
 
 
+## 如何快速出原型
+1. 考虑使用pymtl3, 比systemc快
+1. 参考 https://www.csl.cornell.edu/pymtl2019/
+
 ## implement fifo lists:
 
 1. sync fifo
