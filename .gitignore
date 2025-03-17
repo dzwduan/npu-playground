@@ -5,3 +5,4 @@ systolic_array/__pycache__
 .cache
 *.onnx
 *.json
+*.o

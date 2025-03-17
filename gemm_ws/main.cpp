@@ -4,6 +4,7 @@
 #include <iostream>
 #include <spdlog/spdlog.h>
 #include "mapping.h"
+#include "operation.h"
 
 
 SimulationConfig get_default_config() {
@@ -23,21 +24,15 @@ SimulationConfig get_default_config() {
 int main() {
 
     // test resnet FC layer
-    std::string fc_mapping = "[T] B1 IC512 OC100 - [O] B1 IC1 OC5 - [I] B1 IC512 OC248";
-    // test mapping
-    Mapping m(fc_mapping);
-    assert(m.total_loop.B == 1);
-    assert(m.total_loop.IC==512);
-    assert(m.total_loop.OC==100);
+    std::string fc_mapping = "[T] B1 IC4096 OC1000 - [O] B1 IC6 OC7 - [I] B1 IC816 OC152";
+    // input info
+    uint32_t n = 1, c = 4096, m = 1000;
+    auto config = get_default_config();
+    OperationFactory::initialize(config);
+
+    // Mapping mapping(fc_mapping);
+
+        
 
 
-    assert(m.tile_out_loop.B==1);
-    assert(m.tile_out_loop.IC==1);
-    assert(m.tile_out_loop.OC==5);
-
-    assert(m.tile_in_loop.B==1);
-    assert(m.tile_in_loop.IC==512);
-    assert(m.tile_in_loop.OC==248);
-
-    printf("PASS ALL Tests\n");
 }

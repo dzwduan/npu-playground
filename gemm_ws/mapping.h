@@ -69,5 +69,5 @@ struct Mapping {
 };
 
 
-using mapping_table = std::map<LoopCount, Mapping>;
-auto parse_mapping_file(std::string file_path) -> mapping_table;
+using MappingTable = std::map<LoopCount, Mapping>;
+auto parse_mapping_file(std::string file_path) -> MappingTable;

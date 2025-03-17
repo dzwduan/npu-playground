@@ -9,3 +9,5 @@
   3. Op get config
   4. Op initialize tiles by mapping_table
 5. Do simulation (cal cycle) 先不细看
+
+TODO: 写完gemm_ws , 理解ISA
