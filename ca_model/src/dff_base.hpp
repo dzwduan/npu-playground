@@ -1,3 +1,4 @@
+#pragma  once
 #include <iostream>
 #include <type_traits>
 
@@ -74,12 +75,12 @@ class DffBase {
 
 
         // like veilog reg <= data;
-        DffBase& operator <= (const T& data) {
+        DffBase& operator <<= (const T& data) {
             this->data_d = data;
             return *this;
         }
 
-        DffBase& operator <= (const DffBase& other) {
+        DffBase& operator <<= (const DffBase& other) {
             this->data_d = other.get_d();
             return *this;
         }

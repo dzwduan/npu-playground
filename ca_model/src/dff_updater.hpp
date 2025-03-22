@@ -1,11 +1,13 @@
 #pragma once
+#include <memory>
 #include <vector>
+
 #include "dff_base.hpp"
 
 template<typename T>
 class DFFUpdater {
 private:
-    std::vector<DffBase<T>*> dffs;
+    std::vector<std::weak_ptr<DffBase<T>>> dffs;
     bool global_rst_n;
     bool global_en;
 
@@ -13,8 +15,8 @@ public:
     DFFUpdater() : global_rst_n(true), global_en(true) {}
 
     // 注册DFF
-    void register_dff(DffBase<T>* dff) {
-        dffs.push_back(dff);
+    void register_dff(std::shared_ptr<DffBase<T>> dff) {
+        dffs.emplace_back(dff);
     }
 
     // 全局复位控制
@@ -41,12 +43,19 @@ public:
     }
 
     // 获取注册的DFF数量
-    size_t get_dff_count() const {
+    auto get_dff_count() const -> size_t {
         return dffs.size();
     }
 
     // 清除所有注册的DFF
     void clear() {
         dffs.clear();
+    }
+
+    void purge_expired() noexcept {
+        dffs.erase(
+            std::__remove_if(dffs.begin(), dffs.end(),
+                [](const auto& wp){ return wp.expired(); }),
+            dffs.end());
     }
 };

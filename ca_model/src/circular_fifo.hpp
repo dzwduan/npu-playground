@@ -66,12 +66,12 @@ public:
     }
 
     bool is_empty() {
-        empty <= (rptr == wptr);
+        empty <<= (rptr == wptr);
         return empty.get();
     }
 
     bool is_full()  {
-        full <= ((wptr + 1) % size == rptr.get_d());
+        full <<= ((wptr + 1) % size == rptr.get_d());
         return full.get();
     }
 
