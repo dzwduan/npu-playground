@@ -10,6 +10,9 @@
 ## 如何快速出原型
 1. 考虑使用pymtl3, 比systemc快
 1. 参考 https://www.csl.cornell.edu/pymtl2019/
+1. 参考 https://albertc9.github.io/2024/11/07/introduction-to-pymtl-basics/
+1. 使用pymtl3 实现 gemmini的mesh tile pe层级的ca model
+1. TODO: 深入理解 pymtl gcd and sort
 
 ## implement fifo lists:
 

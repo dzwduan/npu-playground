@@ -11,7 +11,7 @@ struct SimulationConfig {
     uint32_t PE_num ;
     PEType   pe_type;
     uint32_t pe_freq;
-    uint32_t pe_width;
+    uint32_t pe_width; //
     uint32_t pe_height;
 
     // vector config

@@ -2,12 +2,19 @@
 
 #include "config.h"
 #include "mapping.h"
-#include <memory>
+#include "tile.h"
+#include <deque>
+
 class Operation {
 public:
   Operation(SimulationConfig config);
 
+  virtual void initialize_tiles(MappingTable mp) = 0;
+
 protected:
+  virtual void initialize_instr(Tile& tile, Mapping mp) = 0;
+  std::deque<Tile> tiles;
+
   int Bdim;
   int OCdim;
   int ICdim;
@@ -17,8 +24,10 @@ protected:
   int WHdim;
   int WWdim;
 
-private:
   SimulationConfig config;
+
+private:
+
 };
 
 // 使用创建的所有op共享一个config

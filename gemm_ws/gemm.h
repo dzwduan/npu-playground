@@ -10,6 +10,8 @@ public:
        std::vector<uint32_t> output_shape, std::vector<uint32_t> input_shape,
        std::vector<uint32_t> weight_shape);
 
+  virtual ~Gemm() = default;
+
 protected:
   std::vector<uint32_t> _output_shape;
   std::vector<uint32_t> _input_shape;

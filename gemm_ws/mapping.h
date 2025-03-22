@@ -1,10 +1,11 @@
+#include "config.h"
 #include <map>
 #include <vector>
 #include <string>
 #include <cstdint>
 
    
-enum class LoopType {B, IC, OC, WH, WW, IH, IW};
+// enum class LoopType {B, IC, OC, WH, WW, IH, IW};
 
 struct LoopCount {
     uint32_t B = 1;
@@ -23,19 +24,6 @@ struct LoopCount {
                 WW == other.WW &&
                 IH == other.IH &&
                 IW == other.IW;
-    }
-
-    auto operator=(const LoopCount &other) -> LoopCount& {
-        if (this != &other) {  // 防止自赋值
-            B = other.B;
-            IC = other.IC;
-            OC = other.OC;
-            WH = other.WH;
-            WW = other.WW;
-            IH = other.IH;
-            IW = other.IW;
-        }
-        return *this;
     }
 
     auto operator<(const LoopCount &other) const noexcept -> bool {
@@ -69,5 +57,16 @@ struct Mapping {
 };
 
 
-using MappingTable = std::map<LoopCount, Mapping>;
-auto parse_mapping_file(std::string file_path) -> MappingTable;
+
+class MappingTable {
+    public:
+    MappingTable() = default;
+    MappingTable(SimulationConfig config);
+
+    void gemm_mapping(LoopCount &key);
+
+    private:
+    SimulationConfig config;
+    using mp_t = std::map<LoopCount, Mapping>;
+    mp_t mapping_table;
+};
