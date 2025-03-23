@@ -14,6 +14,10 @@
 1. 使用pymtl3 实现 gemmini的mesh tile pe层级的ca model
 
 但是考虑到下面的问题，后面接入onnx 以及 ramulator2 ， 使用pymtl需要重构底层代码，所以我打算直接写一个抽象的Reg实现，然后建模。
+TODO: 重构dff，当前的写法需要挨个手动register，我需要实现一个自动register dff 到 statistic dff_list的功能
+TODO: 加入一个全局的dff ctrl, 需要基于dff_list
+
+
 
 ## implement fifo lists:
 
