@@ -87,6 +87,7 @@ public:
     return rhs != lhs;
   }
 
+  // 仅用于初始化
   Reg& operator=(const T val) noexcept {
     if (current_val != val) {
       current_val = val;
